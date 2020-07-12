@@ -1,0 +1,22 @@
+##SETTING UP HELM AND TILLER##
+
+kubectl -n kube-system create serviceaccount tiller
+kubectl create cluster rolebinding tiller --clusterrole cluster-admin  --serviceaccount=kube-system:tiller
+helm init --service-account tiller
+helm init --service-account tiller --upgrade
+
+#INSTALL PROMETHEUS#
+helm install  stable/prometheus  --namespace prometheus  --set alertmanager.persistentVolume.storageClass="gp2"  --set server.persistentVolume.storageClass="gp2"
+
+
+#PORT FORWARDING##
+kubectl get svc -n prometheus
+kubectl -n prometheus port-forward svc/dull-bumblebee-prometheus-server  88
+
+
+#INSTALL GRAFANA##
+helm install grafana/stable  --namespace grafana  --set persistence.storageClassName="gp2"  --set adminPasswod=redhat  --set service.type=LooadBalancer
+
+##PORT FORWARDING##
+kubectl get svc -n grafana
+kubectl -n grafana  port-forward svc/exasperated-seal-grafana  1234:80
